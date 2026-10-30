@@ -1,5 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+AGENTS.md
+project-requirements.md
+timeline-breakdown.md
+
 # dependencies
 /node_modules
 /.pnp
