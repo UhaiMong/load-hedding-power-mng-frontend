@@ -1,137 +1,976 @@
-# 🚀 B7A7 Frontend (Fullstack) Project Assignment
+# Loadhedding And Power Management - (frontend part)
 
-> 💡 **Note:** This is a **frontend/fullstack-focused** assignment. You will build a robust, scalable, and visually appealing user interface using **Next.js**. You must consume a backend API (either your own from B7A6 or a provided one) and demonstrate proper architecture, state management, role-based access, and modern UI/UX best practices.
+## Tech Stack
 
----
-
-## 🔍 Find Your Assignment 
-
-> 💡 Check your Student ID by clicking your **profile image** on the [Programming Hero Website](https://web.programming-hero.com/profile). The project domain **must match** your B7A6 Backend Assignment (or a mutually agreed-upon alternative).
-
-| Last Digit of Student ID | Assignment Domain |
-|:------------------------:|:------------------|
-| **1** | **Courier & Logistics Platform** 🚚 |
-| **2** | **Blood Donation & Emergency Platform** 🩸 |
-| **3** | **Load Shedding & Power Management** ⚡ |
-| **4** | **Developer Assessment Platform** 💻 |
-| **5** | **Emergency Ambulance Dispatch** 🚑 |
-| **6** | **Housing & Roommate Platform** 🏠 |
-| **7** | **Field Service Management** 🔧 |
-| **8** | **Project Management SaaS** 📋 |
-| **9** | **University Management System** 🎓 |
-| **0** | **City Complaint & Service Platform** 🏙️ |
-
-> 💡 **Note:** Regular e-commerce clones or overly simplistic CRUD dashboards are **not allowed**. The UI must reflect the complexity of the domain, featuring distinct workflows for **3 distinct user roles**.
+| Category                | Technology                                       | Purpose                                                 |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------- |
+| **Framework**           | Next.js (App Router), TypeScript                 | Server-side rendering, routing, and type safety         |
+| **Styling & UI**        | Tailwind CSS, shadcn/ui                          | Responsive, accessible, and modern UI development       |
+| **State Management**    | TanStack Query + Zustand / Context _(if needed)_ | Server-state caching and global client-state management |
+| **Forms & Validation**  | React Hook Form / `@tanstack/react-form` + Zod   | Type-safe form handling and client-side validation      |
+| **Authentication**      | NextAuth.js + Middleware                         | Secure session management and protected routes          |
+| **Payment Integration** | Bkash sandbox (Test Mode)                        | Real payment processing with success/cancel flows       |
+| **Data Visualization**  | Recharts / Chart.js                              | Admin dashboard charts and analytics                    |
+| **Media & Icons**       | `next/image`, Lucide React                       | Optimized image delivery and consistent iconography     |
+| **Notifications**       | Sonner                                           | User-friendly toast notifications                       |
+| **Deployment**          | Vercel                                           | Production frontend deployment with edge network        |
 
 ---
 
-## ⚠️ Mandatory Requirements
+## Roles
 
-> [!CAUTION]
-> **MANDATORY - READ CAREFULLY**
-> 
-> The following requirements are **strictly mandatory**. Failure to complete any of these may result in significant mark deductions or **0 marks** for the affected section:
-> 
-> 1. **Next.js App Router Architecture**: Strict and justified use of **Server Components** (default) and **Client Components** (`"use client"`). Proper use of `layout.tsx`, `page.tsx`, `error.tsx`, and `loading.tsx`.
-> 2. **Modern UI/UX & Responsiveness**: Mobile-first, accessible, and modern design. Must use a utility-first CSS framework (Tailwind CSS/StyleX) and a component library (e.g., shadcn/ui, Radix UI, or Mantine).
-> 3. **Authentication & Authorization**: Secure login flow, protected routes (middleware), and **role-based UI rendering** (hiding/showing elements based on the 3 distinct roles).
-> 4. **One-Click Role Login**: Your login page must implement a clear, structured layout featuring distinct, one-click "Demo Login" buttons for each of the 3 roles (e.g., Admin, User, Provider).
-> 5. **API Integration & State Management**: Proper data fetching (TanStack Query / SWR or native Next.js caching), global state management (Zustand / Redux Toolkit / Context), loading skeletons, and error boundaries.
-> 6. **Form Handling & Validation**: Use **React Hook Form or `@tanstack/react-form` + Zod** for all forms, ensuring frontend validation matches backend rules.
-> 7. **Payment Integration**: Must integrate the frontend flow for **Stripe** or **SSLCommerz** (Test Mode). Simulated/fake payments (e.g., "Cash on Delivery") are **NOT accepted**.
-> 8. **Meaningful Commits**: Minimum **20 meaningful** frontend commits with descriptive messages (e.g., `feat: add role-based sidebar`, `fix: resolve hydration mismatch`).
-> 9. **Demo Credentials**: Provide working demo email and password for the Admin role (and others, if 1-click login is not fully functional) for evaluation.
-> 10. **Deployment**: Provide a working live frontend URL (e.g., Vercel, Netlify, Cloudflare).
-> 11. **Video Explanation**: Submit a 5–10 minute UI/UX and fullstack integration walkthrough video.
+CUSTOMER, OPERATOR, TECHNICIAN, ZONE_MANAGER (scoped to zones they manage), ADMIN.
+Permission groups live in `src/config/roles.ts` and are enforced per route with `authorize(...)`.
 
----
+## Auth
 
-## 📊 Marks Distribution
+Better Auth with the Bearer plugin: `Authorization: Bearer <token>`.
+`/api/v1/auth/{register,login,refresh-token,logout}` return the token in the standard envelope (refresh rotates the session).
+Google login: `POST /api/auth/sign-in/social` `{ "provider": "google" }` (needs `GOOGLE_CLIENT_ID/SECRET`); the resulting session cookie also works on all routes.
 
-| # | Category | Weight | Details |
-|:-:|:---------|:------:|:--------|
-| 1 | UI/UX Design & Responsiveness | 20% | Modern design, accessibility, mobile responsiveness, consistent theming |
-| 2 | Next.js Architecture | 15% | Proper Server/Client component split, App Router features, layouts, error boundaries |
-| 3 | Authentication & Authorization | 15% | Secure auth flow, middleware protection, role-based UI rendering (3 roles) |
-| 4 | API Integration & State Management | 15% | Data fetching strategy, caching, global state, optimistic updates, loading states |
-| 5 | Form Handling & Validation | 10% | React Hook Form / `@tanstack/react-form` + Zod, user-friendly errors, complex workflows |
-| 6 | Performance & Optimization | 10% | Image optimization, lazy loading, code splitting, URL state management (`useSearchParams`) |
-| 7 | Code Quality & Reusability | 5% | Component modularity, custom hooks, clean code, proper typing (TypeScript) |
-| 8 | Deployment | 5% | Working production URL, environment variable configuration, CI/CD (optional bonus) |
-| 9 | Commit History | 2% | 20+ meaningful frontend commits |
-| 10 | Video Explanation | 3% | 5–10 minute UI/UX and integration walkthrough |
-| **Total** | | **100%** | |
+## Error handling
+
+`catchAsync` (higher-order function) wraps every controller; `globalErrorHandler` converts AppError, Zod, Prisma, Multer, Better Auth and malformed-JSON errors into
+`{ "success": false, "message": "...", "errors": [] }`. Success: `{ "success": true, "message": "...", "data": {}, "meta"?: {} }`.
+
+## Payments (bKash sandbox)
+
+Bill → `POST /payments/initiate` → open `data.bkashUrl` → bKash redirects to `/payments/callback/:id` → payment is executed & verified server-side, bill becomes PAID.
+`/payments/webhook` (header `x-webhook-secret`) and `/payments/:id/verify` re-query bKash; nothing is trusted from the client.
+
+# API Endpoints
+
+Base URL: `http://localhost:5000/api/v1` · Auth header for protected routes: `Authorization: Bearer <token>` (token comes from the login response `data.token`).
+
+Total: 80 distinct endpoints (some are listed twice with different demo bodies, e.g. the logins).
+
+Success: `{ "success": true, "message": "...", "data": {}, "meta": {} }` · Error: `{ "success": false, "message": "...", "errors": [] }`
 
 ---
 
-## 📋 Project Requirements
+## auth
 
-> ⏱️ **Detailed Guidelines:** Please read the complete project requirements, tech stack, and API rules here:  
-> 👉 [Project Requirements & API Guidelines](https://github.com/Apollo-Level2-Web-Dev/B7A7/blob/main/project-requirements.md)
+### 1. Register (customer) - sends a 6-digit OTP to the email, no token yet
 
----
+**auth:** `POST http://localhost:5000/api/v1/auth/register`  
+**Access:** Public
 
-## 📅 Timeline: 5-Day Work Breakdown
-
-> ⏱️ **Recommended Schedule:** Maintain steady progress to avoid last-minute stress and ensure a clean Git history.  
-> 👉 [View the 5-Day Work Breakdown](https://github.com/Apollo-Level2-Web-Dev/B7A7/blob/main/timeline-breakdown.md)
-
----
-
-## 🗓️ Submission Deadlines
-
-| Deadline | Maximum Marks |
-|:---------|:-------------:|
-| **October 10, 2026, 11:59 PM** | 60 Marks |
-
-> [!IMPORTANT]
-> **Note:** There will be **no 50-mark or 30-mark extended deadlines**. To ensure your eligibility and participation in **Job Placement Support** and **Reward Courses**, you must submit your assignment strictly within this deadline. Late submissions will not be accepted or graded.
-
----
-
-## 📦 What to Submit
-
-Please format your submission exactly like this example:
-
-```text
-Project Name            : Courier & Logistics Platform
-Backend Repo            : https://github.com/your-username/courier-backend
-Frontend Repo           : https://github.com/your-username/courier-frontend
-Live Backend URL        : https://courier-api.vercel.app
-Live Frontend URL       : https://courier-frontend.vercel.app
-API Documentation       : https://courier-api.vercel.app/docs (Link to your B7A6 or provided API docs)
-Demo Video              : https://drive.google.com/file/d/xyz/view
-Demo Admin Email        : admin@courier.com
-Demo Admin Password     : ********
+```json
+{
+  "name": "Uhai",
+  "email": "uhaimong.dev@gmail.com",
+  "password": "Admin@885",
+  "phone": "+8801711111111",
+  "address": "House 12, Road 4, Sector 10",
+  "meterNumber": "MTR-1001"
+}
 ```
 
-> ⚠️ **Security Warning:** Never submit personal passwords or production secrets. Create dedicated, secure demo credentials specifically for evaluation.
+### 2. Resend verification OTP (60s cooldown, max 5 per hour)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/resend-otp`  
+**Access:** Public
+
+```json
+{
+  "email": "uhaimong.dev@gmail.com"
+}
+```
+
+### 3. Verify email with OTP (logs the user in)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/verify-email`  
+**Access:** Public (OTP from email; paste it into the `otp` collection variable)
+
+```json
+{
+  "email": "uhaimong.dev@gmail.com",
+  "otp": "{{otp}}"
+}
+```
+
+### 4. Login (Admin)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public (email must be verified)
+
+**Note: It is demo body request not real loign credential**
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "Password@123"
+}
+```
+
+### 5. Login (Operator)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public (email must be verified)
+
+```json
+{
+  "email": "operator@example.com",
+  "password": "Password@123"
+}
+```
+
+### 6. Login (Zone Manager)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public (email must be verified)
+
+```json
+{
+  "email": "manager@example.com",
+  "password": "Password@123"
+}
+```
+
+### 7. Login (Technician)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public (email must be verified)
+
+```json
+{
+  "email": "tech1@example.com",
+  "password": "Password@123"
+}
+```
+
+### 8. Login (Customer)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public (email must be verified)
+
+```json
+{
+  "email": "customer@example.com",
+  "password": "Password@123"
+}
+```
+
+### 9. Refresh token (rotates session, old token stops working)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/refresh-token`  
+**Access:** Any logged-in user (use the token from Verify email)
+
+No request body.
+
+### 10. Change password - step 1: send OTP to my email
+
+**auth:** `POST http://localhost:5000/api/v1/auth/change-password/send-otp`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 11. Change password - step 2: confirm with OTP
+
+**auth:** `POST http://localhost:5000/api/v1/auth/change-password`  
+**Access:** Any logged-in user (OTP from email in `otp` variable)
+
+```json
+{
+  "otp": "{{otp}}",
+  "currentPassword": "Passw0rd123",
+  "newPassword": "Passw0rd456"
+}
+```
+
+### 12. Logout
+
+**auth:** `POST http://localhost:5000/api/v1/auth/logout`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 13. Forgot password - sends OTP (always answers 200, never reveals if the email exists)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/forgot-password`  
+**Access:** Public
+
+```json
+{
+  "email": "rahim@example.com"
+}
+```
+
+### 14. Reset password with OTP (signs out all sessions)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/reset-password`  
+**Access:** Public (OTP from email in `otp` variable)
+
+```json
+{
+  "email": "rahim@example.com",
+  "otp": "{{otp}}",
+  "newPassword": "Passw0rd789"
+}
+```
+
+### 15. Login (new customer created by Register, after reset)
+
+**auth:** `POST http://localhost:5000/api/v1/auth/login`  
+**Access:** Public
+
+```json
+{
+  "email": "rahim@example.com",
+  "password": "Passw0rd789"
+}
+```
 
 ---
 
-## 🎥 Video Explanation Guide
+## network / zones
 
-**Duration:** 5–10 minutes  
-**Language:** English or Bengali  
+### 16. Create zone
 
-**What to Cover:**
-1. **Project Overview & UI/UX Philosophy**: Briefly explain the project, the design system used, and how the UI solves the user's problem.
-2. **Next.js Architecture**: Point out specific examples of where you used Server Components vs. Client Components and why. Show your `layout.tsx` and `loading.tsx` in action.
-3. **Authentication & Role-Based UI**: Use the **One-Click Demo Login** to log in as **Role 1** (e.g., User) and show their dashboard. Log out, then log in as **Role 2** (e.g., Admin) and demonstrate how the UI, navigation, and accessible routes change dynamically.
-4. **API Integration & State**: Demonstrate a data-heavy page. Show the loading skeleton, the populated data, and use browser DevTools (Network tab) to show efficient API calls (e.g., TanStack Query caching).
-5. **Form Validation & Error Handling**: Intentionally submit a form with invalid data to show Zod error messages. Then, trigger an API error (e.g., disconnect network or use bad data) to show the graceful `error.tsx` or toast notification.
-6. **Responsive Design**: Resize the browser window or use DevTools device mode to prove the application is fully responsive and mobile-friendly.
+**zones:** `POST http://localhost:5000/api/v1/zones`  
+**Access:** ADMIN
 
-**Recording Options:**
-- **Loom**: Record and share the link directly *(Recommended)*.
-- **OBS**: Record and upload to Google Drive (ensure sharing is set to "Anyone with the link" → Viewer).
+```json
+{
+  "name": "Dhaka South",
+  "code": "DHK-S",
+  "description": "Dhaka South distribution zone"
+}
+```
+
+### 17. List zones
+
+**zones:** `GET http://localhost:5000/api/v1/zones?q=dhaka&sortBy=name&order=asc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 18. Get zone
+
+**zones:** `GET http://localhost:5000/api/v1/zones/{{zoneId}}`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 19. Update zone
+
+**zones:** `PATCH http://localhost:5000/api/v1/zones/{{zoneId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "description": "Updated zone description"
+}
+```
+
+### 20. Delete zone (soft delete)
+
+**zones:** `DELETE http://localhost:5000/api/v1/zones/{{newZoneId}}`  
+**Access:** ADMIN
+
+No request body.
 
 ---
 
-## 🧭 Project Idea Hub Reference
+## network / substations
 
-Your frontend must bring the **B7A6 Backend Project Ideas** to life. Refer to the [B7A6 Idea Hub](https://github.com/Apollo-Level2-Web-Dev/B7A6/blob/main/idea-hub.md) for domain-specific workflows. 
+### 21. Create substation
 
-> 🚀 **Final Goal:** Build a frontend that is not just a "dumb" API consumer. Your project should demonstrate a deep understanding of **Next.js architecture, modern UI/UX principles, robust state management, and seamless fullstack integration**. Build an interface you would be proud to put in your professional portfolio!
+**substations:** `POST http://localhost:5000/api/v1/substations`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "zoneId": "{{zoneId}}",
+  "name": "Gulshan Substation",
+  "code": "SS-GULSHAN",
+  "capacityMw": 80
+}
+```
+
+### 22. List substations
+
+**substations:** `GET http://localhost:5000/api/v1/substations?zoneId={{zoneId}}&q=uttara&sortBy=capacityMw&order=desc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 23. Get substation
+
+**substations:** `GET http://localhost:5000/api/v1/substations/{{substationId}}`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 24. Update substation
+
+**substations:** `PATCH http://localhost:5000/api/v1/substations/{{newSubstationId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "name": "Gulshan Main Substation",
+  "capacityMw": 90
+}
+```
+
+### 25. Delete substation (soft delete)
+
+**substations:** `DELETE http://localhost:5000/api/v1/substations/{{newSubstationId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+No request body.
 
 ---
+
+## network / feeders
+
+### 26. Create feeder
+
+**feeders:** `POST http://localhost:5000/api/v1/feeders`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "substationId": "{{substationId}}",
+  "name": "Test Feeder",
+  "code": "F-TEST",
+  "capacityMw": 25,
+  "loadMw": 10,
+  "priority": "LOW"
+}
+```
+
+### 27. List feeders
+
+**feeders:** `GET http://localhost:5000/api/v1/feeders?priority=LOW&status=ENERGIZED&sortBy=loadMw&order=desc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 28. Get feeder
+
+**feeders:** `GET http://localhost:5000/api/v1/feeders/{{feederId}}`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 29. Update feeder
+
+**feeders:** `PATCH http://localhost:5000/api/v1/feeders/{{testFeederId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "name": "Test Feeder Updated",
+  "priority": "MEDIUM",
+  "status": "ENERGIZED"
+}
+```
+
+### 30. Update live load reading
+
+**feeders:** `PATCH http://localhost:5000/api/v1/feeders/{{feederId}}/load`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "loadMw": 15,
+  "status": "ENERGIZED"
+}
+```
+
+### 31. Delete feeder (soft delete)
+
+**feeders:** `DELETE http://localhost:5000/api/v1/feeders/{{testFeederId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+No request body.
+
+---
+
+## network / areas
+
+### 32. Create area
+
+**areas:** `POST http://localhost:5000/api/v1/areas`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "feederId": "{{feederId}}",
+  "name": "Sector 14",
+  "code": "A-SEC14",
+  "type": "RESIDENTIAL",
+  "customerCount": 800,
+  "address": "Sector 14, Uttara"
+}
+```
+
+### 33. List areas
+
+**areas:** `GET http://localhost:5000/api/v1/areas?q=sector&type=RESIDENTIAL&sortBy=name&order=asc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 34. Get area
+
+**areas:** `GET http://localhost:5000/api/v1/areas/{{areaId}}`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 35. Update area
+
+**areas:** `PATCH http://localhost:5000/api/v1/areas/{{newAreaId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+```json
+{
+  "name": "Sector 14 Updated",
+  "customerCount": 900
+}
+```
+
+### 36. Delete area (soft delete)
+
+**areas:** `DELETE http://localhost:5000/api/v1/areas/{{newAreaId}}`  
+**Access:** ZONE_MANAGER (own zone) / ADMIN
+
+No request body.
+
+---
+
+## users
+
+### 37. Get my profile
+
+**users:** `GET http://localhost:5000/api/v1/users/me`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 38. Update my profile
+
+**users:** `PATCH http://localhost:5000/api/v1/users/me`  
+**Access:** Any logged-in user
+
+```json
+{
+  "name": "Demo Customer",
+  "phone": "+8801700000010",
+  "address": "House 12, Road 4, Sector 10",
+  "areaId": "{{areaId}}"
+}
+```
+
+### 39. Upload avatar (multipart/form-data, Cloudinary)
+
+**users:** `POST http://localhost:5000/api/v1/users/me/avatar`  
+**Access:** Any logged-in user
+
+```
+multipart/form-data
+image (file): (choose a JPEG/PNG/WEBP file, max 5 MB)
+```
+
+### 40. Set my availability (on-duty toggle)
+
+**users:** `PATCH http://localhost:5000/api/v1/users/me/availability`  
+**Access:** TECHNICIAN
+
+```json
+{
+  "isAvailable": true
+}
+```
+
+### 41. List technicians (pagination + filters)
+
+**users:** `GET http://localhost:5000/api/v1/users/technicians?available=true&page=1&limit=10`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+No request body.
+
+### 42. Delete my account (soft delete, logs me out everywhere)
+
+**users:** `DELETE http://localhost:5000/api/v1/users/me`  
+**Access:** Any logged-in user (not ADMIN) - demo uses the throwaway Register user
+
+No request body.
+
+---
+
+## admin
+
+### 43. List users (search / filter / sort / pagination)
+
+**admin:** `GET http://localhost:5000/api/v1/admin/users?q=demo&role=CUSTOMER&isActive=true&sortBy=name&order=asc&page=1&limit=10`  
+**Access:** ADMIN
+
+No request body.
+
+### 44. Create staff account
+
+**admin:** `POST http://localhost:5000/api/v1/admin/users`  
+**Access:** ADMIN
+
+```json
+{
+  "name": "New Operator",
+  "email": "operator2@example.com",
+  "password": "Passw0rd123",
+  "role": "OPERATOR",
+  "phone": "+8801700000099",
+  "zoneId": "{{zoneId}}"
+}
+```
+
+### 45. Get user by id
+
+**admin:** `GET http://localhost:5000/api/v1/admin/users/{{staffId}}`  
+**Access:** ADMIN
+
+No request body.
+
+### 46. Change user role
+
+**admin:** `PATCH http://localhost:5000/api/v1/admin/users/{{staffId}}/role`  
+**Access:** ADMIN
+
+```json
+{
+  "role": "TECHNICIAN",
+  "zoneId": "{{zoneId}}"
+}
+```
+
+### 47. Activate / deactivate user
+
+**admin:** `PATCH http://localhost:5000/api/v1/admin/users/{{staffId}}/status`  
+**Access:** ADMIN
+
+```json
+{
+  "isActive": false
+}
+```
+
+### 48. Delete user (soft delete)
+
+**admin:** `DELETE http://localhost:5000/api/v1/admin/users/{{staffId}}`  
+**Access:** ADMIN
+
+No request body.
+
+### 49. Dashboard statistics
+
+**admin:** `GET http://localhost:5000/api/v1/admin/dashboard-stats`  
+**Access:** ADMIN
+
+No request body.
+
+### 50. Audit logs (filters + pagination)
+
+**admin:** `GET http://localhost:5000/api/v1/admin/audit-logs?entity=Outage&action=OUTAGE_VERIFIED&page=1&limit=20`  
+**Access:** ADMIN
+
+No request body.
+
+---
+
+## schedule
+
+### 51. Create planned outage (conflict-checked)
+
+**schedule:** `POST http://localhost:5000/api/v1/schedules`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "feederId": "{{feederId}}",
+  "startTime": "2030-01-01T10:00:00.000Z",
+  "endTime": "2030-01-01T12:00:00.000Z",
+  "type": "MAINTENANCE",
+  "reason": "Transformer maintenance"
+}
+```
+
+### 52. Generate load-shedding schedule - preview only (dryRun)
+
+**schedule:** `POST http://localhost:5000/api/v1/schedules/generate`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "zoneId": "{{zoneId}}",
+  "date": "2030-01-02",
+  "deficitMw": 20,
+  "startHour": 8,
+  "endHour": 22,
+  "slotHours": 2,
+  "maxShedHoursPerFeeder": 4,
+  "utcOffsetMinutes": 360,
+  "dryRun": true,
+  "reason": "Gas supply shortage"
+}
+```
+
+### 53. Generate load-shedding schedule - save
+
+**schedule:** `POST http://localhost:5000/api/v1/schedules/generate`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "zoneId": "{{zoneId}}",
+  "date": "2030-01-02",
+  "deficitMw": 20,
+  "startHour": 8,
+  "endHour": 22,
+  "slotHours": 2,
+  "maxShedHoursPerFeeder": 4,
+  "utcOffsetMinutes": 360,
+  "dryRun": false,
+  "reason": "Gas supply shortage"
+}
+```
+
+### 54. List schedules (customers only see their own feeder/area)
+
+**schedule:** `GET http://localhost:5000/api/v1/schedules?status=SCHEDULED&type=LOAD_SHEDDING&from=2030-01-01&to=2030-12-31&sortBy=startTime&order=asc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 55. Get schedule
+
+**schedule:** `GET http://localhost:5000/api/v1/schedules/{{scheduleId}}`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 56. Reschedule (only SCHEDULED)
+
+**schedule:** `PATCH http://localhost:5000/api/v1/schedules/{{scheduleId}}`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "startTime": "2030-01-01T11:00:00.000Z",
+  "endTime": "2030-01-01T13:00:00.000Z",
+  "reason": "Moved by one hour"
+}
+```
+
+### 57. Cancel schedule
+
+**schedule:** `POST http://localhost:5000/api/v1/schedules/{{scheduleId}}/cancel`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "reason": "Work postponed"
+}
+```
+
+### 58. Delete schedule (soft delete)
+
+**schedule:** `DELETE http://localhost:5000/api/v1/schedules/{{scheduleId}}`  
+**Access:** ADMIN
+
+No request body.
+
+---
+
+## outage
+
+### 59. Report outage (multipart/form-data, image optional)
+
+**outage:** `POST http://localhost:5000/api/v1/outages/report`  
+**Access:** CUSTOMER
+
+```
+multipart/form-data
+description (text): No electricity since 8pm in Sector 10
+areaId (text): {{areaId}}  (optional - defaults to your profile area)
+image (file): (optional JPEG/PNG/WEBP, max 5 MB)
+```
+
+### 60. List outages (role-scoped, filters + pagination)
+
+**outage:** `GET http://localhost:5000/api/v1/outages?status=REPORTED&severity=MEDIUM&sortBy=startedAt&order=desc&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 61. My reported outages
+
+**outage:** `GET http://localhost:5000/api/v1/outages/my-reports?page=1&limit=10`  
+**Access:** CUSTOMER
+
+No request body.
+
+### 62. My assigned outages
+
+**outage:** `GET http://localhost:5000/api/v1/outages/my-assigned?status=ASSIGNED&page=1&limit=10`  
+**Access:** TECHNICIAN
+
+No request body.
+
+### 63. Get outage
+
+**outage:** `GET http://localhost:5000/api/v1/outages/{{outageId}}`  
+**Access:** Any logged-in user (scoped)
+
+No request body.
+
+### 64. Outage timeline (audit trail)
+
+**outage:** `GET http://localhost:5000/api/v1/outages/{{outageId}}/timeline`  
+**Access:** Any logged-in user (scoped)
+
+No request body.
+
+### 65. Verify outage (REPORTED -> VERIFIED)
+
+**outage:** `PATCH http://localhost:5000/api/v1/outages/{{outageId}}/verify`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "severity": "HIGH",
+  "cause": "Transformer fault",
+  "estimatedRestorationAt": "2030-01-01T18:00:00.000Z"
+}
+```
+
+### 66. Assign technician (VERIFIED -> ASSIGNED)
+
+**outage:** `POST http://localhost:5000/api/v1/outages/{{outageId}}/assign`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "technicianId": "{{technicianId}}"
+}
+```
+
+### 67. Technician: start repair (ASSIGNED -> IN_PROGRESS)
+
+**outage:** `PATCH http://localhost:5000/api/v1/outages/{{outageId}}/status`  
+**Access:** TECHNICIAN (assigned)
+
+```json
+{
+  "status": "IN_PROGRESS",
+  "notes": "Reached the site"
+}
+```
+
+### 68. Technician: mark restored (IN_PROGRESS -> RESTORED)
+
+**outage:** `PATCH http://localhost:5000/api/v1/outages/{{outageId}}/status`  
+**Access:** TECHNICIAN (assigned)
+
+```json
+{
+  "status": "RESTORED",
+  "notes": "Replaced blown fuse",
+  "cause": "Blown HT fuse"
+}
+```
+
+### 69. Reject outage (alternative to Assign - only for REPORTED/VERIFIED outages)
+
+**outage:** `POST http://localhost:5000/api/v1/outages/{{outageId}}/reject`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+```json
+{
+  "reason": "Customer-side fault, not a grid outage"
+}
+```
+
+### 70. Auto-assign best available technician (alternative to manual Assign - only for VERIFIED outages)
+
+**outage:** `POST http://localhost:5000/api/v1/outages/{{outageId}}/auto-assign`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+No request body.
+
+### 71. Delete outage (soft delete, RESTORED/REJECTED only)
+
+**outage:** `DELETE http://localhost:5000/api/v1/outages/{{outageId}}`  
+**Access:** ADMIN
+
+No request body.
+
+---
+
+## notification
+
+### 72. My notifications
+
+**notification:** `GET http://localhost:5000/api/v1/notifications?unreadOnly=true&page=1&limit=10`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 73. Mark one as read
+
+**notification:** `PATCH http://localhost:5000/api/v1/notifications/{{notificationId}}/read`  
+**Access:** Any logged-in user
+
+No request body.
+
+### 74. Mark all as read
+
+**notification:** `PATCH http://localhost:5000/api/v1/notifications/read-all`  
+**Access:** Any logged-in user
+
+No request body.
+
+---
+
+## bill
+
+### 75. Create bill (tiered tariff calculated server-side)
+
+**bill:** `POST http://localhost:5000/api/v1/bills`  
+**Access:** OPERATOR / ADMIN
+
+```json
+{
+  "customerId": "{{customerId}}",
+  "billingMonth": "2030-01",
+  "units": 250,
+  "dueDate": "2030-02-15T00:00:00.000Z"
+}
+```
+
+### 76. List bills (customers see only their own)
+
+**bill:** `GET http://localhost:5000/api/v1/bills?status=UNPAID&month=2030-01&sortBy=dueDate&order=asc&page=1&limit=10`  
+**Access:** CUSTOMER / OPERATOR / ADMIN
+
+No request body.
+
+### 77. Get bill
+
+**bill:** `GET http://localhost:5000/api/v1/bills/{{billId}}`  
+**Access:** CUSTOMER / OPERATOR / ADMIN
+
+No request body.
+
+### 78. Create bill (second bill, used for the delete demo)
+
+**bill:** `POST http://localhost:5000/api/v1/bills`  
+**Access:** OPERATOR / ADMIN
+
+```json
+{
+  "customerId": "{{customerId}}",
+  "billingMonth": "2030-02",
+  "units": 120,
+  "dueDate": "2030-03-15T00:00:00.000Z"
+}
+```
+
+### 79. Delete bill (soft delete, unpaid only)
+
+**bill:** `DELETE http://localhost:5000/api/v1/bills/{{tempBillId}}`  
+**Access:** ADMIN
+
+No request body.
+
+---
+
+## payment
+
+### 80. Initiate bKash payment (open data.bkashUrl in a browser)
+
+**payment:** `POST http://localhost:5000/api/v1/payments/initiate`  
+**Access:** CUSTOMER
+
+```json
+{
+  "billId": "{{billId}}"
+}
+```
+
+### 81. bKash callback (bKash redirects the browser here)
+
+**payment:** `GET http://localhost:5000/api/v1/payments/callback/{{paymentId}}?paymentID={{bkashPaymentId}}&status=success`  
+**Access:** Public (called by bKash)
+
+No request body.
+
+### 82. Webhook (re-verifies with bKash; header x-webhook-secret required)
+
+**payment:** `POST http://localhost:5000/api/v1/payments/webhook`  
+**Access:** Public + secret header
+
+**Extra header:** `x-webhook-secret: {{webhookSecret}}`
+
+```json
+{
+  "paymentID": "{{bkashPaymentId}}"
+}
+```
+
+### 83. Verify payment (re-query bKash)
+
+**payment:** `POST http://localhost:5000/api/v1/payments/{{paymentId}}/verify`  
+**Access:** CUSTOMER / OPERATOR / ADMIN
+
+No request body.
+
+### 84. List payments
+
+**payment:** `GET http://localhost:5000/api/v1/payments?status=COMPLETED&sortBy=createdAt&order=desc&page=1&limit=10`  
+**Access:** CUSTOMER / OPERATOR / ADMIN
+
+No request body.
+
+### 85. Get payment
+
+**payment:** `GET http://localhost:5000/api/v1/payments/{{paymentId}}`  
+**Access:** CUSTOMER / OPERATOR / ADMIN
+
+No request body.
+
+---
+
+## analytics
+
+### 86. Outage summary
+
+**analytics:** `GET http://localhost:5000/api/v1/analytics/outage-summary?from=2026-01-01&to=2030-12-31`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+No request body.
+
+### 87. Area reliability (worst areas first)
+
+**analytics:** `GET http://localhost:5000/api/v1/analytics/area-reliability?from=2026-01-01&to=2030-12-31&limit=10`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+No request body.
+
+### 88. Technician performance
+
+**analytics:** `GET http://localhost:5000/api/v1/analytics/technician-performance?from=2026-01-01&to=2030-12-31&limit=10`  
+**Access:** OPERATOR / ZONE_MANAGER / ADMIN
+
+No request body.
+
+## Highlights
+
+- Conflict detection + Postgres advisory locks + transactions (schedules, outage reports, payments)
+- Atomic technician claim (compare-and-set) – no double assignment
+- Priority/fairness-based load-shedding generator with `dryRun`
+- Outage state machine, soft deletes, audit log + outage timeline
+- Redis caching (network lists, analytics, dashboard) – falls back gracefully when `REDIS_URL` is empty
+- Rate limiting, Helmet, CORS, indexed Prisma schema split into multiple files
