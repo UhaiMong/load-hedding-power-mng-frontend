@@ -25,6 +25,11 @@ export const OUTAGE_STATUS_TONES: Record<string, Tone> = {
 };
 export const SEVERITY_TONES: Record<string, Tone> = { LOW: "gray", MEDIUM: "blue", HIGH: "yellow", CRITICAL: "red" };
 
+export const BILL_STATUSES = ["UNPAID", "PAID", "OVERDUE"];
+export const BILL_STATUS_TONES: Record<string, Tone> = { UNPAID: "yellow", PAID: "green", OVERDUE: "red" };
+export const PAYMENT_STATUSES = ["PENDING", "COMPLETED", "FAILED", "CANCELLED"];
+export const PAYMENT_STATUS_TONES: Record<string, Tone> = { PENDING: "yellow", COMPLETED: "green", FAILED: "red", CANCELLED: "gray" };
+
 /** "IN_PROGRESS" → "In progress" */
 export const humanize = (v: string) => v.charAt(0) + v.slice(1).toLowerCase().replace(/_/g, " ");
 

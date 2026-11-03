@@ -123,6 +123,55 @@ export interface Notification {
   createdAt: string;
 }
 
+type Customer = (NonNullable<Person> & { profile?: { meterNumber?: string | null } | null }) | null;
+
+export interface Bill {
+  id: string;
+  billingMonth: string;
+  units: number;
+  amount?: number | string;
+  totalAmount?: number | string;
+  status: string;
+  dueDate: string;
+  paidAt?: string | null;
+  createdAt?: string;
+  customerId?: string;
+  customer?: Customer;
+  user?: Customer;
+  breakdown?: unknown;
+}
+
+export interface Payment {
+  id: string;
+  billId?: string;
+  amount?: number | string;
+  status: string;
+  method?: string | null;
+  bkashPaymentId?: string | null;
+  trxId?: string | null;
+  transactionId?: string | null;
+  createdAt: string;
+  paidAt?: string | null;
+  completedAt?: string | null;
+  bill?: Pick<Bill, "id" | "billingMonth"> | null;
+  customer?: Customer;
+  user?: Customer;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  ip?: string | null;
+  createdAt: string;
+  user?: Person;
+  actor?: Person;
+  metadata?: unknown;
+  details?: unknown;
+  changes?: unknown;
+}
+
 export interface PageMeta {
   page: number;
   limit: number;

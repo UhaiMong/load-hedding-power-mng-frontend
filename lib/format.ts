@@ -6,6 +6,12 @@ export const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDat
 export const fmtTime = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "—";
 
+export const fmtMoney = (n?: number | string | null) => (n == null ? "—" : `৳${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
+
+/** "2030-01" → "Jan 2030" */
+export const fmtMonth = (m?: string | null) =>
+  m ? new Date(`${m.slice(0, 7)}-01T00:00:00`).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "—";
+
 /** ISO → value for <input type="datetime-local"> */
 export function toLocalInput(iso?: string | null) {
   if (!iso) return "";
