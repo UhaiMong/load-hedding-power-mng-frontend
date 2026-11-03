@@ -110,6 +110,19 @@ export interface TimelineEvent {
   changedBy?: Person;
 }
 
+export interface Notification {
+  id: string;
+  title?: string | null;
+  message?: string | null;
+  body?: string | null;
+  type?: string | null;
+  isRead?: boolean;
+  readAt?: string | null;
+  link?: string | null;
+  data?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
 export interface PageMeta {
   page: number;
   limit: number;

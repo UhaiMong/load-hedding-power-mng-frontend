@@ -10,6 +10,7 @@ import { AuthNav } from "@/components/auth-nav";
 import { companyName, ROLE_LABEL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { navFor } from "./nav-items";
+import { NotificationBell } from "./notification-bell";
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useAuth();
@@ -85,6 +86,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <Menu className="size-5" />
           </button>
           <div className="ml-auto flex items-center gap-3">
+            <NotificationBell />
             <AuthNav />
           </div>
         </header>
