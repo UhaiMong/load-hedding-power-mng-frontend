@@ -74,6 +74,42 @@ export interface Schedule {
   createdBy?: { id: string; name: string } | null;
 }
 
+type Person = { id: string; name: string; email?: string; phone?: string | null } | null;
+
+export interface Outage {
+  id: string;
+  description?: string | null;
+  status: string;
+  severity?: string | null;
+  cause?: string | null;
+  imageUrl?: string | null;
+  image?: string | null;
+  startedAt?: string;
+  createdAt?: string;
+  estimatedRestorationAt?: string | null;
+  restoredAt?: string | null;
+  rejectReason?: string | null;
+  area?: (Ref & { feeder?: Ref }) | null;
+  feeder?: Ref | null;
+  reportedBy?: Person;
+  reporter?: Person;
+  technician?: Person;
+  assignedTo?: Person;
+}
+
+export interface TimelineEvent {
+  id: string;
+  status?: string;
+  action?: string;
+  notes?: string | null;
+  note?: string | null;
+  message?: string | null;
+  createdAt: string;
+  actor?: Person;
+  user?: Person;
+  changedBy?: Person;
+}
+
 export interface PageMeta {
   page: number;
   limit: number;

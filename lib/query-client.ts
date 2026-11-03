@@ -8,7 +8,7 @@ declare module "@tanstack/react-query" {
     mutationMeta: {
       /** Toast shown when the mutation succeeds. */
       success?: string;
-      /** Query key prefixes refetched after success, e.g. [["zones"]]. */
+      /** Paths refetched after success, e.g. [["zones"]] also hits "zones/123". */
       invalidates?: QueryKey[];
       /** Skip the automatic error toast (the form shows errors itself). */
       silent?: boolean;
@@ -30,7 +30,12 @@ export function makeQueryClient() {
       onSuccess: (_data, _vars, _ctx, mutation) => {
         const { success, invalidates } = mutation.meta ?? {};
         if (success) toast.success(success);
-        invalidates?.forEach((queryKey) => client.invalidateQueries({ queryKey }));
+        const paths = invalidates?.map((k) => String(k[0])) ?? [];
+        if (paths.length)
+          client.invalidateQueries({
+            predicate: ({ queryKey: [p] }) =>
+              typeof p === "string" && paths.some((path) => p === path || p.startsWith(`${path}/`)),
+          });
       },
       onError: (err, _vars, _ctx, mutation) => {
         if (!mutation.meta?.silent) toast.error(err.message);
