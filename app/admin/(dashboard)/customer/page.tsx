@@ -1,7 +1,5 @@
+import { RoleHome } from "@/components/dashboard/role-home";
+
 export default function CustomerPage() {
-  return (
-    <div>
-      <h1>Customer dashboard</h1>
-    </div>
-  );
+  return <RoleHome />;
 }

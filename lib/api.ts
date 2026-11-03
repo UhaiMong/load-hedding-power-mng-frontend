@@ -35,7 +35,7 @@ export interface ApiResult<T> {
   meta?: PageMeta;
 }
 
-type Query = Record<string, string | number | boolean | null | undefined>;
+export type Query = Record<string, string | number | boolean | null | undefined>;
 
 interface Options {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";

@@ -40,3 +40,21 @@ export const ROLE_HOME: Record<Role, string> = {
 };
 
 export const homeFor = (role: Role) => ROLE_HOME[role];
+
+export const ROLE_LABEL: Record<Role, string> = {
+  ADMIN: "Admin",
+  ZONE_MANAGER: "Zone Manager",
+  OPERATOR: "Operator",
+  TECHNICIAN: "Technician",
+  CUSTOMER: "Customer",
+};
+
+// Seed accounts from the backend (one-click demo login)
+export const DEMO_PASSWORD = "Admin@885";
+export const DEMO_ACCOUNTS: { role: Role; email: string; emoji: string }[] = [
+  { role: "ADMIN", email: "admin@loadsheddin.com", emoji: "" },
+  { role: "ZONE_MANAGER", email: "manager@loadsheddin.com", emoji: "" },
+  { role: "OPERATOR", email: "operator@loadsheddin.com", emoji: "" },
+  { role: "TECHNICIAN", email: "tech1@example.com", emoji: "" },
+  { role: "CUSTOMER", email: "uhaimong.dev@gmail.com", emoji: "" },
+];

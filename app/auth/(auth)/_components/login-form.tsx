@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { homeFor } from "@/lib/constants";
 import { useSubmit } from "@/lib/use-submit";
 import { AuthShell, Field, Link, linkClass, Notice } from "./auth-ui";
+import { DemoLogin } from "./demo-login";
 
 export function LoginForm() {
   const params = useSearchParams();
@@ -86,6 +87,7 @@ export function LoginForm() {
           {pending ? "Logging in…" : "Log in"}
         </Button>
       </form>
+      <DemoLogin />
     </AuthShell>
   );
 }

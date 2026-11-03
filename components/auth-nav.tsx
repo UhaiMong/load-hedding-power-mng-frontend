@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/app/Providers/AuthProvider";
-import { homeFor, ROLE_HOME } from "@/lib/constants";
+import { homeFor, ROLE_LABEL } from "@/lib/constants";
 
 const itemClass =
   "block w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-muted";
@@ -41,7 +41,10 @@ export function AuthNav() {
   if (!user) {
     return (
       <div className="flex items-center gap-4 text-sm">
-        <Link href="/auth/login" className="font-medium hover:underline">
+        <Link
+          href="/auth/login"
+          className="font-medium hover:underline text-white"
+        >
           Login
         </Link>
         <Link
@@ -89,7 +92,7 @@ export function AuthNav() {
               {user.email}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {ROLE_HOME[user.role]}
+              {ROLE_LABEL[user.role]}
             </p>
           </div>
           <Link

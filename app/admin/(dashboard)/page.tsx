@@ -1,9 +1,17 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "@/app/Providers/AuthProvider";
+import { Loading } from "@/components/common/states";
+import { homeFor } from "@/lib/constants";
+
+/** /admin → the signed-in role's dashboard. */
 export default function DashboardPage() {
-  return (
-    <section>
-      <div>
-        <h2>Dashboard page</h2>
-      </div>
-    </section>
-  );
+  const { user } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (user) router.replace(homeFor(user.role));
+  }, [user, router]);
+  return <Loading />;
 }

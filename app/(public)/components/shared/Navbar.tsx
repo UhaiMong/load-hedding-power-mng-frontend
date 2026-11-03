@@ -2,16 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  ChevronDown,
-  LogOut,
-  FileText,
-  Wrench,
-  LayoutDashboard,
-  ArrowRight,
-  Terminal,
-  Phone,
-} from "lucide-react";
+import { ChevronDown, Phone } from "lucide-react";
 import { FaInstagram, FaFacebook, FaTiktok } from "react-icons/fa";
 import { MdEmail, MdLocationOn } from "react-icons/md";
 import { usePathname } from "next/navigation";
@@ -27,10 +18,9 @@ import {
   mapStr,
   tiktok_link,
 } from "@/lib/constants";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { cn } from "cn";
 import Image from "next/image";
-import { WhatsAppButton } from "./WhatsAppButton";
 import { AuthNav } from "@/components/auth-nav";
 
 const NAV_LINKS = [
