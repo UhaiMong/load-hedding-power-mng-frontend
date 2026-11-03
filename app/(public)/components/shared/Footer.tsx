@@ -169,28 +169,22 @@ export default function Footer() {
                   label: "Residential Electrical",
                 },
                 { path: "https://bpdb.gov.bd/", label: "Notice Board" },
-              ].map(({ path, label }) => {
-                const href = `/services/${path}`;
-                return (
-                  <li key={label}>
-                    <Link
-                      href={href}
-                      aria-current={isActive(href) ? "page" : undefined}
-                      className={`group inline-flex items-start gap-1.5 text-sm transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                        isActive(href)
-                          ? "font-semibold text-accent"
-                          : "text-white/80"
-                      }`}
-                    >
-                      <ArrowUpRight
-                        aria-hidden
-                        className="mt-0.5 size-4 shrink-0 text-primary transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      />
-                      {label}
-                    </Link>
-                  </li>
-                );
-              })}
+              ].map(({ path, label }) => (
+                <li key={label}>
+                  <a
+                    href={path}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group inline-flex items-start gap-1.5 text-sm text-white/80 transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    <ArrowUpRight
+                      aria-hidden
+                      className="mt-0.5 size-4 shrink-0 text-primary transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    />
+                    {label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
 

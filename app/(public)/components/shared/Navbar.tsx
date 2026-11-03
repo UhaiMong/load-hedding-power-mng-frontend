@@ -299,19 +299,19 @@ export default function Navbar() {
                               {/* 5-column grid */}
                               <div className="grid grid-cols-4 gap-1 overflow-y-auto">
                                 {importantLinks.map((item) => {
-                                  const href = `/services/${item.path}`;
-                                  const active = isActive(href);
                                   return (
-                                    <Link
-                                      key={item.path}
-                                      href={href}
+                                    <a
+                                      key={item.label}
+                                      href={item.path}
+                                      target="_blank"
+                                      rel="noreferrer"
                                       onClick={() => setServicesOpen(false)}
                                       className={cn(
                                         "group flex items-start gap-3 rounded-xl px-3 py-2.5 no-underline transition-colors text-white",
                                       )}
                                     >
                                       {item.label}
-                                    </Link>
+                                    </a>
                                   );
                                 })}
                               </div>
