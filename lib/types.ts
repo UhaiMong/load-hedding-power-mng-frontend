@@ -27,14 +27,37 @@ export interface User {
   profile?: Profile | null;
 }
 
-export interface Area {
+export interface Ref {
   id: string;
   name: string;
   code: string;
+}
+
+export interface Zone extends Ref {
+  description?: string | null;
+}
+
+export interface Substation extends Ref {
+  zoneId: string;
+  capacityMw: number;
+  zone?: Ref;
+}
+
+export interface Feeder extends Ref {
+  substationId: string;
+  capacityMw: number;
+  loadMw: number;
+  priority: string;
+  status: string;
+  substation?: Ref & { zone?: Ref };
+}
+
+export interface Area extends Ref {
   type?: string;
   customerCount?: number;
   address?: string | null;
   feederId?: string;
+  feeder?: Ref;
 }
 
 export interface PageMeta {
