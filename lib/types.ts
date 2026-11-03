@@ -60,6 +60,20 @@ export interface Area extends Ref {
   feeder?: Ref;
 }
 
+export interface Schedule {
+  id: string;
+  feederId: string;
+  type: string;
+  status: string;
+  startTime: string;
+  endTime: string;
+  reason?: string | null;
+  cancelReason?: string | null;
+  createdAt?: string;
+  feeder?: Ref & { substation?: Ref & { zone?: Ref } };
+  createdBy?: { id: string; name: string } | null;
+}
+
 export interface PageMeta {
   page: number;
   limit: number;
