@@ -31,6 +31,7 @@ import { signOut, useSession } from "next-auth/react";
 import { cn } from "cn";
 import Image from "next/image";
 import { WhatsAppButton } from "./WhatsAppButton";
+import { AuthNav } from "@/components/auth-nav";
 
 const NAV_LINKS = [
   { path: "/", label: "Home" },
@@ -345,15 +346,7 @@ export default function Navbar() {
             </ul>
 
             <div className="shrink-0 lg:flex">
-              {session?.user ? (
-                <div />
-              ) : (
-                <li>
-                  <Link href="/dashboard" className="">
-                    Dashboard
-                  </Link>
-                </li>
-              )}
+              <AuthNav />
             </div>
 
             <div className="ml-auto shrink-0 lg:hidden">
