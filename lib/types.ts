@@ -27,6 +27,16 @@ export interface User {
   profile?: Profile | null;
 }
 
+export interface Area {
+  id: string;
+  name: string;
+  code: string;
+  type?: string;
+  customerCount?: number;
+  address?: string | null;
+  feederId?: string;
+}
+
 export interface PageMeta {
   page: number;
   limit: number;
