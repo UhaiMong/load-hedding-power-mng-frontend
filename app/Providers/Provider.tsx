@@ -1,6 +1,7 @@
 "use client";
 import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "./AuthProvider";
 export default function Provider({
   children,
 }: Readonly<{
@@ -8,7 +9,7 @@ export default function Provider({
 }>) {
   return (
     <SessionProvider>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
       <Toaster position="top-right" />
     </SessionProvider>
   );

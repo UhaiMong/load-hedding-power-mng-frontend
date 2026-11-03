@@ -61,27 +61,6 @@ const SOCIAL_LINKS = [
   { href: tiktok_link, Icon: FaTiktok, label: "TikTok" },
 ];
 
-const ADMIN_LINKS = [
-  {
-    href: "/dashboard",
-    Icon: LayoutDashboard,
-    label: "Dashboard",
-    cls: "text-red-400",
-  },
-  {
-    href: "/dashboard/services/add",
-    Icon: Wrench,
-    label: "Service",
-    cls: "text-emerald-400",
-  },
-  {
-    href: "/dashboard/blog/add",
-    Icon: FileText,
-    label: "Blog",
-    cls: "text-sky-400",
-  },
-];
-
 export default function Navbar() {
   const { data: session } = useSession();
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -149,64 +128,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Admin Bar — NOT sticky ── */}
-      {session?.user && (
-        <div className="border-b border-white/5 bg-neutral-950/95 backdrop-blur">
-          <div className="site-container flex min-h-10 flex-wrap items-center justify-between py-1">
-            <div className="flex items-center gap-1">
-              <div className="mr-2 hidden items-center gap-2 border-r border-white/10 pr-5 md:flex">
-                <div className="flex h-5.5 w-5.5 items-center justify-center rounded-md border border-primary/30 bg-primary/15">
-                  <Terminal className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <span className="text-[10.5px] font-bold tracking-[.08em] text-white">
-                  ACCESS BAR
-                </span>
-              </div>
-
-              {ADMIN_LINKS.map(({ href, Icon, label, cls }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium text-gray-500 transition-all hover:bg-white/5 hover:text-white"
-                >
-                  <Icon className={`h-3.5 w-3.5 ${cls}`} />
-                  {label}
-                </Link>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="hidden items-center gap-2 rounded-full border border-white/[0.07] bg-white/5 px-3 py-1 md:flex">
-                <div className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                <span className="font-mono text-[10px] tracking-[.08em] text-gray-500">
-                  SYS.NORMAL
-                </span>
-              </div>
-
-              <div className="hidden items-center gap-2 border-l border-white/10 pl-3 sm:flex">
-                <span className="font-mono text-[11px] font-semibold text-white">
-                  {session?.user?.name || "admin"}
-                </span>
-                <div className="relative">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/70 text-[10px] font-black text-primary-foreground">
-                    AD
-                  </div>
-                  <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-neutral-950 bg-green-500" />
-                </div>
-              </div>
-
-              <button
-                onClick={() => signOut()}
-                className="group flex cursor-pointer items-center gap-2 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-1.5 font-mono text-xs font-bold text-red-400 transition-all hover:border-red-600 hover:bg-red-600 hover:text-white"
-              >
-                <LogOut className="h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                exit()
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Ticker Bar — also plain flow, also not scroll-conditional ── */}
       <div className="hidden border-b border-primary bg-foreground lg:flex">
         <div className="flex h-8.5 w-full items-center overflow-hidden">
@@ -423,11 +344,16 @@ export default function Navbar() {
               })}
             </ul>
 
-            <div className="ml-1 hidden shrink-0 lg:flex">
-              <WhatsAppButton
-                className="bg-green-700 hover:bg-green-600 rounded-lg px-3 font-black text-white shadow-xl focus:ring-secondary active:translate-y-0.5 xl:px-4"
-                defaultMessage="I want emergency contact"
-              />
+            <div className="shrink-0 lg:flex">
+              {session?.user ? (
+                <div />
+              ) : (
+                <li>
+                  <Link href="/dashboard" className="">
+                    Dashboard
+                  </Link>
+                </li>
+              )}
             </div>
 
             <div className="ml-auto shrink-0 lg:hidden">
