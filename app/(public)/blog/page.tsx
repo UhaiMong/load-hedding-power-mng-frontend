@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { PageShell } from "../components/shared/PageShell";
+import { companyName } from "@/lib/constants";
 
-export const metadata: Metadata = { title: "Blog" };
+export const metadata: Metadata = {
+  title: "Blog",
+  description: `Explore our ${companyName} Insights and practical solutions`,
+  alternates: { canonical: "/blog" },
+};
 
 const POSTS = [
   {
@@ -26,8 +31,15 @@ export default function BlogPage() {
     <PageShell title="Blog" subtitle="Tips and updates from our team.">
       <div className="grid gap-4 md:grid-cols-3">
         {POSTS.map((p) => (
-          <article key={p.title} className="rounded-lg p-5 ring-1 ring-foreground/10">
-            <time className="text-xs text-muted-foreground">{new Date(p.date).toLocaleDateString(undefined, { dateStyle: "medium" })}</time>
+          <article
+            key={p.title}
+            className="rounded-lg p-5 ring-1 ring-foreground/10"
+          >
+            <time className="text-xs text-muted-foreground">
+              {new Date(p.date).toLocaleDateString(undefined, {
+                dateStyle: "medium",
+              })}
+            </time>
             <h2 className="mt-1 font-semibold">{p.title}</h2>
             <p className="mt-2 text-muted-foreground">{p.text}</p>
           </article>
