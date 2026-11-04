@@ -1,66 +1,66 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
+import { Suspense } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Loading } from "@/components/common/states";
+import { getPost, getPosts, postDate } from "@/lib/blog";
+import { Markdown } from "./markdown";
 
-type Post = {
-  slug: string;
-  title: string;
-  createdAt: string;
-  content: string;
-};
+type Props = { params: Promise<{ slug: string }> };
 
-const POSTS_URL = "https://gen-endpoint.com/api/posts";
-
-async function getPosts(): Promise<Post[]> {
-  try {
-    if (!POSTS_URL) throw new Error("BLOG_POSTS_URL is not configured");
-
-    const response = await fetch(POSTS_URL, { next: { revalidate: 300 } });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch blog posts (${response.status})`);
-    }
-
-    const data = await response.json();
-    const posts = Array.isArray(data) ? data : data.posts;
-    if (!Array.isArray(posts)) throw new Error("Invalid blog posts response");
-    return posts;
-  } catch (error) {
-    console.error("Unable to load blog posts:", error);
-    return [];
-  }
+// Prerender known posts; new slugs render on demand.
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.length ? posts.map((p) => ({ slug: p.slug })) : [{ slug: "placeholder" }];
 }
 
-export default async function BlogDetailsPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const posts = await getPosts();
-  const post = posts.find((item) => item.slug === slug);
+  const post = await getPost(slug);
+  if (!post) return { title: "Post not found" };
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: { canonical: `/blog/${slug}` },
+  };
+}
 
+async function PostContent({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPost(slug);
   if (!post) notFound();
 
-  const publishedDate = new Date(post.createdAt);
-  const dateLabel = Number.isNaN(publishedDate.getTime())
-    ? post.createdAt
-    : new Intl.DateTimeFormat("en", {
-        dateStyle: "long",
-      }).format(publishedDate);
-
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 lg:py-16">
-      <article>
-        <header className="mb-10 border-b border-gray-200 pb-8">
-          <p className="mb-3 text-sm text-gray-500">{dateLabel}</p>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            {post.title}
-          </h1>
-        </header>
+    <article className="min-w-0">
+      <header className="mb-8 border-b pb-6">
+        <p className="text-xs text-muted-foreground">
+          {[postDate(post), post.author?.name, post.readTime].filter(Boolean).join(" · ")}
+        </p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight wrap-break-word sm:text-4xl">{post.title}</h1>
+        {post.excerpt && <p className="mt-3 text-muted-foreground">{post.excerpt}</p>}
+        {!!post.tags?.length && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((t) => (
+              <span key={t} className="rounded-full bg-muted px-2.5 py-0.5 text-xs">{t}</span>
+            ))}
+          </div>
+        )}
+      </header>
+      <Markdown>{post.content ?? ""}</Markdown>
+    </article>
+  );
+}
 
-        <div className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-blue-700 prose-img:rounded-lg">
-          <ReactMarkdown>{post.content ?? ""}</ReactMarkdown>
-        </div>
-      </article>
+export default function BlogDetailsPage({ params }: Props) {
+  return (
+    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 lg:py-14">
+      <Link href="/blog" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" /> Back to blog
+      </Link>
+      <Suspense fallback={<Loading />}>
+        <PostContent params={params} />
+      </Suspense>
     </main>
   );
 }
