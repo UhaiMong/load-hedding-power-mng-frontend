@@ -86,7 +86,7 @@ export function Hero() {
   return (
     <section
       aria-label="Hero slider"
-      className="relative w-full overflow-hidden bg-destructive"
+      className="relative w-full overflow-hidden bg-primary"
     >
       {/* Background slides — full-bleed backdrop, kept dark behind text */}
       <div className="absolute inset-0">
@@ -164,11 +164,11 @@ export function Hero() {
                 {/* Corner accents — desktop only */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute left-4 top-4 hidden size-10 rounded-tl-lg border-l-2 border-t-2 border-destructive lg:block"
+                  className="pointer-events-none absolute left-4 top-4 hidden size-10 rounded-tl-lg border-l-2 border-t-2 border-primary lg:block"
                 />
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute bottom-4 right-4 hidden size-10 rounded-br-lg border-b-2 border-r-2 border-destructive lg:block"
+                  className="pointer-events-none absolute bottom-4 right-4 hidden size-10 rounded-br-lg border-b-2 border-r-2 border-primary lg:block"
                 />
 
                 {/* Prev/Next — bottom-LEFT corner, both mobile & desktop */}
@@ -177,7 +177,7 @@ export function Hero() {
                     type="button"
                     onClick={prev}
                     aria-label="Previous slide"
-                    className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-destructive text-white backdrop-blur-md transition-colors duration-300 hover:bg-primary/80"
+                    className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-primary text-white backdrop-blur-md transition-colors duration-300 hover:bg-primary/80"
                   >
                     <ChevronLeft className="size-4" />
                   </button>
@@ -185,7 +185,7 @@ export function Hero() {
                     type="button"
                     onClick={next}
                     aria-label="Next slide"
-                    className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-destructive text-white backdrop-blur-md transition-colors duration-300 hover:bg-primary/80"
+                    className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-primary text-white backdrop-blur-md transition-colors duration-300 hover:bg-primary/80"
                   >
                     <ChevronRight className="size-4" />
                   </button>
@@ -213,7 +213,7 @@ export function Hero() {
             </Animate>
             <Animate direction="up" duration={600} delay={220}>
               <div className="mt-5 flex justify-center lg:justify-start">
-                <CallNow className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-medium bg-destructive text-white shadow-lg transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98] sm:text-base" />
+                <CallNow className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-medium bg-primary text-white shadow-lg transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98] sm:text-base" />
               </div>
             </Animate>
           </div>
@@ -227,7 +227,7 @@ export function Hero() {
                 key={item.info}
                 className="flex flex-col items-center text-center lg:border-l lg:border-neutral-200 lg:first:border-l-0"
               >
-                <span className="text-xl font-semibold text-destructive sm:text-2xl lg:text-3xl">
+                <span className="text-xl font-semibold text-primary sm:text-2xl lg:text-3xl">
                   {item.badge}
                 </span>
                 <span className="mt-1 text-xs text-neutral-800 sm:text-sm">
