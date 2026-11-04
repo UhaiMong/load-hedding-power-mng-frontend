@@ -66,6 +66,21 @@ export function AuthNav() {
 
   return (
     <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account menu"
+        className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-muted text-sm font-semibold"
+      >
+        {user.image ? (
+          <img src={user.image} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials
+        )}
+      </button>
+
       {open && (
         <div
           role="menu"
