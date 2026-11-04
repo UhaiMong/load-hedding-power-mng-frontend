@@ -35,7 +35,10 @@ export interface ApiResult<T> {
   meta?: PageMeta;
 }
 
-export type Query = Record<string, string | number | boolean | null | undefined>;
+export type Query = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
 
 interface Options {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -45,8 +48,7 @@ interface Options {
 }
 
 /**
- * Browser-side fetch. Requests go to our own `/api/proxy/*` route, which adds the
- * Bearer token from the httpOnly cookie and forwards to the backend.
+ * Browser-side fetch. Requests go to our own `/api/proxy/*`
  */
 export async function request<T = unknown>(
   path: string,
@@ -64,8 +66,16 @@ export async function request<T = unknown>(
     res = await fetch(url, {
       method,
       signal,
-      headers: body !== undefined && !isForm ? { "Content-Type": "application/json" } : undefined,
-      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+      headers:
+        body !== undefined && !isForm
+          ? { "Content-Type": "application/json" }
+          : undefined,
+      body:
+        body === undefined
+          ? undefined
+          : isForm
+            ? (body as FormData)
+            : JSON.stringify(body),
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
@@ -81,15 +91,23 @@ export async function request<T = unknown>(
   } | null;
 
   if (!res.ok || !json?.success) {
-    throw new ApiError(res.status, json?.message ?? `Request failed (${res.status})`, json?.errors ?? []);
+    throw new ApiError(
+      res.status,
+      json?.message ?? `Request failed (${res.status})`,
+      json?.errors ?? [],
+    );
   }
   return { data: json.data as T, message: json.message ?? "", meta: json.meta };
 }
 
 export const api = {
-  get: <T = unknown>(path: string, query?: Query, signal?: AbortSignal) => request<T>(path, { query, signal }),
-  post: <T = unknown>(path: string, body?: unknown) => request<T>(path, { method: "POST", body }),
-  patch: <T = unknown>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body }),
-  put: <T = unknown>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body }),
+  get: <T = unknown>(path: string, query?: Query, signal?: AbortSignal) =>
+    request<T>(path, { query, signal }),
+  post: <T = unknown>(path: string, body?: unknown) =>
+    request<T>(path, { method: "POST", body }),
+  patch: <T = unknown>(path: string, body?: unknown) =>
+    request<T>(path, { method: "PATCH", body }),
+  put: <T = unknown>(path: string, body?: unknown) =>
+    request<T>(path, { method: "PUT", body }),
   delete: <T = unknown>(path: string) => request<T>(path, { method: "DELETE" }),
 };

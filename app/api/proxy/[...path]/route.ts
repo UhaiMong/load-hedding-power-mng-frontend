@@ -20,7 +20,7 @@ const CLEAR_SESSION = new Set(["auth/logout", "auth/reset-password"]);
 const cookieBase = (req: NextRequest) => ({
   path: "/",
   sameSite: "lax" as const,
-  secure: req.nextUrl.protocol === "https:", // Secure cookies only over https (Safari rejects them on http://localhost)
+  secure: req.nextUrl.protocol === "https:",
 });
 
 type Ctx = { params: Promise<{ path: string[] }> };
@@ -62,7 +62,7 @@ async function handler(req: NextRequest, { params }: Ctx) {
     /* non-JSON body */
   }
 
-  // Login / verify / refresh: move the token into httpOnly cookies and hide it from the browser.
+  // Login / verify / refresh
   if (upstream.ok && SET_SESSION.has(target) && json?.data?.token) {
     const { token: newToken, user } = json.data;
     delete json.data.token;
