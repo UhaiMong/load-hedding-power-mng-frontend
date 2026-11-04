@@ -146,6 +146,9 @@ export interface Payment {
   billId?: string;
   amount?: number | string;
   status: string;
+  currency?: string;
+  provider?: string;
+  failureReason?: string | null;
   method?: string | null;
   bkashPaymentId?: string | null;
   trxId?: string | null;

@@ -10,7 +10,7 @@ export function PaymentSummary({ payment: p }: { payment: Payment }) {
     ["Amount", fmtMoney(p.amount)],
     ["Bill month", fmtMonth(p.bill?.billingMonth)],
     ["Customer", customerOf(p)?.name],
-    ["Method", p.method ?? "bKash"],
+    ["Method", p.method ?? p.provider ?? "bKash"],
     ["Transaction ID", trxOf(p)],
     ["bKash payment ID", p.bkashPaymentId],
     ["Started", fmtDateTime(p.createdAt)],
